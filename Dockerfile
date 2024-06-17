@@ -1,16 +1,13 @@
+
 FROM golang:1.19-alpine AS builder
 
 WORKDIR /app
 
-# Install Glide as a dependency manager (optional, replace with preferred method)
-RUN apk add --no-cache curl && \
-    curl -sSL https://github.com/Masterminds/glide/releases/download/v0.13.7/glide-v0.13.7-x86_64-linux-musl.tar.gz | tar -xzf -
-
 # Copy your application code
-COPY go.mod glide.yaml ./
+COPY go.mod ./
 
-# Install dependencies using Glide (replace with preferred method)
-RUN glide install
+# Download and install dependencies
+RUN go mod download
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/api/main.go
@@ -27,4 +24,4 @@ COPY --from=builder /app/main /app/main
 EXPOSE 8080
 
 # Command to run the application
-CMD ["/app/main"]
+CMD ["/cmd/api/main"]
