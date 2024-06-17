@@ -38,22 +38,28 @@ func (u *User) Validate() error {
 }
 
 func SetRoles(roles []Role) []Role {
+	hasAdmin := false
+	hasModifier := false
+
+	// Check for Admin and Modifier roles in the input
 	for _, role := range roles {
 		if role == Admin {
-			return []Role{
-				Admin, Modifier, Watcher,
-			}
+			hasAdmin = true
+			break // Early exit - dont need to iterate if has Admin
 		}
-
 		if role == Modifier {
-			return []Role{
-				Modifier, Watcher,
-			}
+			hasModifier = true
 		}
 	}
 
-	return []Role{
-		Watcher,
+	// Return roles based on the presence of Admin and Modifier
+	switch {
+	case hasAdmin:
+		return []Role{Admin, Modifier, Watcher}
+	case hasModifier:
+		return []Role{Modifier, Watcher}
+	default:
+		return []Role{Watcher}
 	}
 }
 
