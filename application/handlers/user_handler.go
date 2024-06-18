@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +14,7 @@ type UserHandler struct {
 
 func (uh UserHandler) CreateUserHandler(c *gin.Context) {
 	var newUser domain.User
-	err := c.BindJSON(&newUser) // Use BindJSON for unmarshalling request body
+	err := c.BindJSON(&newUser)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
@@ -24,7 +22,7 @@ func (uh UserHandler) CreateUserHandler(c *gin.Context) {
 
 	err = uh.userService.CreateUser(newUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusConflict, gin.H{"error": err})
 		return
 	}
 
@@ -36,11 +34,7 @@ func (uh UserHandler) GetUserHandler(c *gin.Context) {
 
 	user, err := uh.userService.GetUser(userID)
 	if err != nil {
-		if errors.Is(err, errors.New("user not found")) {
-			c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("User with ID %s not found", userID)})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err})
 		return
 	}
 
@@ -60,11 +54,7 @@ func (uh UserHandler) UpdateRoles(c *gin.Context) {
 	err = uh.userService.UpdateUserRoles(userID, user.Roles)
 
 	if err != nil {
-		if errors.Is(err, errors.New("user not found")) {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": err})
 		return
 	}
 
@@ -77,11 +67,7 @@ func (uh UserHandler) DeleteUser(c *gin.Context) {
 	err := uh.userService.DeleteUser(userID)
 
 	if err != nil {
-		if errors.Is(err, errors.New("cannot delete user")) {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": err})
 		return
 	}
 

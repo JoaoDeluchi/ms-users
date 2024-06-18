@@ -8,7 +8,7 @@ import (
 
 type UserRepository interface {
 	Insert(user *domain.User) (*domain.User, error)
-	GetAll(id string) ([]*domain.User, error)
+	GetAll() []*domain.User
 	FindById(id string) (*domain.User, error)
 	FindByEmail(email string) *domain.User
 	UpdateRoles(userId string, roles []domain.Role) (*domain.User, error)
@@ -21,8 +21,8 @@ type UserRepositoryDb struct {
 
 func (ur UserRepositoryDb) Insert(user *domain.User) (*domain.User, error) {
 	for _, existingUser := range ur.dbInMemory {
-		if existingUser.ID == user.ID {
-			return nil, fmt.Errorf("user with ID %s already exists", user.ID)
+		if existingUser.Email == user.Email {
+			return nil, fmt.Errorf("user already exists")
 		}
 	}
 
@@ -31,17 +31,8 @@ func (ur UserRepositoryDb) Insert(user *domain.User) (*domain.User, error) {
 	return user, nil
 }
 
-func (ur UserRepositoryDb) GetAll(id string) ([]*domain.User, error) {
-	if id == "" {
-		return ur.dbInMemory, nil
-	}
-
-	user, err := ur.FindById(id)
-	if err != nil {
-		return nil, err
-	}
-
-	return []*domain.User{user}, nil
+func (ur UserRepositoryDb) GetAll() []*domain.User {
+	return ur.dbInMemory
 }
 
 func (ur UserRepositoryDb) FindById(id string) (*domain.User, error) {
