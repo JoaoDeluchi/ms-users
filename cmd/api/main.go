@@ -5,7 +5,6 @@ import (
 	"github.com/joaodeluchi/ms-users/application/handlers"
 	"github.com/joaodeluchi/ms-users/application/repositories"
 	"github.com/joaodeluchi/ms-users/application/services"
-	"github.com/joaodeluchi/ms-users/framework/database"
 )
 
 func main() {
@@ -18,9 +17,8 @@ func main() {
 
 func registerUserRoutes(router *gin.Engine) {
 	userRouter := router.Group("/users")
-	db := database.NewDb()
 
-	userRepo := repositories.NewUserRepository(db)
+	userRepo := repositories.NewUserRepository()
 	userServices := services.NewUserService(userRepo)
 	userHandlers := handlers.NewUserHandler(userServices)
 	userRouter.POST("", userHandlers.CreateUserHandler)

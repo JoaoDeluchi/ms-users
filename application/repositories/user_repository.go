@@ -4,83 +4,104 @@ import (
 	"fmt"
 
 	"github.com/joaodeluchi/ms-users/domain"
-	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	Insert(user *domain.User) (*domain.User, error)
-	GetAll(id string) (*domain.User, error)
+	GetAll(id string) ([]*domain.User, error)
 	FindById(id string) (*domain.User, error)
-	FindByEmail(email string) (*domain.User, error)
-	Update(user *domain.User) (*domain.User, error)
+	FindByEmail(email string) *domain.User
+	UpdateRoles(userId string, roles []domain.Role) (*domain.User, error)
+	DeleteUser(id string) ([]*domain.User, error)
 }
 
 type UserRepositoryDb struct {
-	DB *gorm.DB
+	dbInMemory []*domain.User
 }
 
 func (ur UserRepositoryDb) Insert(user *domain.User) (*domain.User, error) {
-	err := ur.DB.Create(user).Error
-
-	if err != nil {
-		return nil, err
+	for _, existingUser := range ur.dbInMemory {
+		if existingUser.ID == user.ID {
+			return nil, fmt.Errorf("user with ID %s already exists", user.ID)
+		}
 	}
+
+	ur.dbInMemory = append(ur.dbInMemory, user)
 
 	return user, nil
 }
 
-func (ur UserRepositoryDb) GetAll(id string) (*domain.User, error) {
-	var user domain.User
-
-	if id != "" {
-		return ur.FindById(id)
+func (ur UserRepositoryDb) GetAll(id string) ([]*domain.User, error) {
+	if id == "" {
+		return ur.dbInMemory, nil
 	}
 
-	ur.DB.Find(&user)
-
-	if user.ID == "" {
-		return nil, fmt.Errorf("user not found")
+	user, err := ur.FindById(id)
+	if err != nil {
+		return nil, err
 	}
 
-	return &user, nil
+	return []*domain.User{user}, nil
 }
 
 func (ur UserRepositoryDb) FindById(id string) (*domain.User, error) {
-	var user domain.User
-
-	ur.DB.First(&user, "id = ?", id)
-
-	// if user.id is empty, means that the user was not found and user id is invalid
-	if user.ID == "" {
-		return nil, fmt.Errorf("user not found")
+	for _, user := range ur.dbInMemory {
+		if user.ID == id {
+			return user, nil
+		}
 	}
-
-	return &user, nil
+	return nil, fmt.Errorf("user with ID %s not found", id)
 }
 
-func (ur UserRepositoryDb) FindByEmail(email string) (*domain.User, error) {
-	var user domain.User
-
-	ur.DB.First(&user, "email = ?", email)
-
-	// if user.id is empty, means that the user was not found and user id is invalid
-	if user.ID == "" {
-		return nil, fmt.Errorf("user not found")
+func (ur UserRepositoryDb) FindByEmail(email string) *domain.User {
+	for _, user := range ur.dbInMemory {
+		if user.Email == email {
+			return user
+		}
 	}
 
-	return &user, nil
+	return nil
 }
 
-func (ur UserRepositoryDb) Update(user *domain.User) (*domain.User, error) {
-	err := ur.DB.Save(&user).Error
-
-	if err != nil {
-		return nil, err
+func (ur UserRepositoryDb) UpdateRoles(userId string, roles []domain.Role) (*domain.User, error) {
+	foundIndex := -1
+	for i, existingUser := range ur.dbInMemory {
+		if existingUser.ID == userId {
+			foundIndex = i
+			break
+		}
 	}
 
-	return user, nil
+	if foundIndex == -1 {
+		return nil, fmt.Errorf("user with ID %s not found", userId)
+	}
+
+	ur.dbInMemory[foundIndex].SetRoles(roles)
+
+	return ur.dbInMemory[foundIndex], nil
 }
 
-func NewUserRepository(Db *gorm.DB) UserRepository {
-	return UserRepositoryDb{DB: Db}
+func (ur UserRepositoryDb) DeleteUser(id string) ([]*domain.User, error) {
+	targetIndex := -1
+	for i, user := range ur.dbInMemory {
+		if user.ID == id {
+			targetIndex = i
+			break
+		}
+	}
+
+	if targetIndex == -1 {
+		return ur.dbInMemory, fmt.Errorf("user with ID %s not found", id)
+	}
+
+	ur.dbInMemory = append(ur.dbInMemory[:targetIndex], ur.dbInMemory[targetIndex+1:]...)
+
+	return ur.dbInMemory, nil
+}
+
+func NewUserRepository() UserRepository {
+	db := []*domain.User{}
+	return UserRepositoryDb{
+		dbInMemory: db,
+	}
 }

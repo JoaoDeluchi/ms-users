@@ -21,12 +21,10 @@ const (
 	Watcher  Role = "Watcher"
 )
 
-// func to set fields as required ASAP
 func init() {
 	govalidator.SetFieldsRequiredByDefault(true)
 }
 
-// validate struct using govalidator
 func (u *User) Validate() error {
 	_, err := govalidator.ValidateStruct(u)
 
@@ -37,22 +35,20 @@ func (u *User) Validate() error {
 	return nil
 }
 
-func SetRoles(roles []Role) []Role {
+func (us *User) SetRoles(roles []Role) []Role {
 	hasAdmin := false
 	hasModifier := false
 
-	// Check for Admin and Modifier roles in the input
 	for _, role := range roles {
 		if role == Admin {
 			hasAdmin = true
-			break // Early exit - dont need to iterate if has Admin
+			break
 		}
 		if role == Modifier {
 			hasModifier = true
 		}
 	}
 
-	// Return roles based on the presence of Admin and Modifier
 	switch {
 	case hasAdmin:
 		return []Role{Admin, Modifier, Watcher}
@@ -63,16 +59,16 @@ func SetRoles(roles []Role) []Role {
 	}
 }
 
-// This function is like a "constructor of the class"
 func NewUser(name, email string, roles []Role) (*User, error) {
 
 	user := &User{
 		ID:       uuid.NewV4().String(),
 		Name:     name,
 		Email:    email,
-		Roles:    SetRoles(roles),
 		IsActive: true,
 	}
+
+	user.Roles = user.SetRoles(roles)
 
 	err := user.Validate()
 
