@@ -6,11 +6,10 @@ import (
 )
 
 type User struct {
-	ID       string `valid:"uuid"`
-	Name     string `valid:"notnull"`
-	Email    string `valid:"email"`
-	Roles    []Role `valid:"notnull"`
-	IsActive bool   `valid:"required"`
+	ID    string `valid:"uuid"`
+	Name  string `valid:"notnull"`
+	Email string `valid:"email"`
+	Roles []Role `valid:"notnull"`
 }
 
 type Role string
@@ -59,13 +58,12 @@ func (us *User) SetRoles(roles []Role) []Role {
 	}
 }
 
-func NewUser(name, email string, roles []Role) (*User, error) {
+func NewUser(name, email string, roles []Role) (User, error) {
 
-	user := &User{
-		ID:       uuid.NewV4().String(),
-		Name:     name,
-		Email:    email,
-		IsActive: true,
+	user := User{
+		ID:    uuid.NewV4().String(),
+		Name:  name,
+		Email: email,
 	}
 
 	user.Roles = user.SetRoles(roles)
@@ -73,7 +71,7 @@ func NewUser(name, email string, roles []Role) (*User, error) {
 	err := user.Validate()
 
 	if err != nil {
-		return nil, err
+		return User{}, err
 	}
 
 	return user, nil

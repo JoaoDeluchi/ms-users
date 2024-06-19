@@ -36,7 +36,6 @@ func TestNewUser(t *testing.T) {
 				Roles: []Role{
 					"Admin",
 				},
-				IsActive: true,
 			},
 			wantError: false,
 		},

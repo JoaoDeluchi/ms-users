@@ -22,7 +22,7 @@ func (uh UserHandler) CreateUserHandler(c *gin.Context) {
 
 	err = uh.userService.CreateUser(newUser)
 	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err})
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -34,7 +34,7 @@ func (uh UserHandler) GetUserHandler(c *gin.Context) {
 
 	user, err := uh.userService.GetUser(userID)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -54,11 +54,11 @@ func (uh UserHandler) UpdateRoles(c *gin.Context) {
 	err = uh.userService.UpdateUserRoles(userID, user.Roles)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, gin.H{"message": "User roles updated successfully!"})
 }
 
 func (uh UserHandler) DeleteUser(c *gin.Context) {
@@ -67,7 +67,7 @@ func (uh UserHandler) DeleteUser(c *gin.Context) {
 	err := uh.userService.DeleteUser(userID)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 

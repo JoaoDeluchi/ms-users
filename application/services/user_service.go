@@ -18,18 +18,37 @@ type UserService struct {
 	UserRepository repositories.UserRepository
 }
 
-func (us UserService) CreateUser(user domain.User) error {
-	u := us.UserRepository.FindByEmail(user.Email)
+func (us UserService) alreadyHaveTheUser(email string) (bool, error) {
+	user, _ := us.UserRepository.FindByEmail(email)
 
-	if u.ID != "" {
-		return fmt.Errorf("user already exist")
+	if user != nil {
+		return true, fmt.Errorf("user with email %s already exist", user.Email)
 	}
 
-	if err := user.Validate(); err != nil {
+	return false, nil
+
+}
+
+func (us UserService) CreateUser(user domain.User) error {
+	haveUser, err := us.alreadyHaveTheUser(user.Email)
+	fmt.Println(haveUser)
+	fmt.Println(err)
+
+	if haveUser || err != nil {
 		return err
 	}
 
-	us.UserRepository.Insert(&user)
+	newUser, err := domain.NewUser(user.Name, user.Email, user.Roles)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = us.UserRepository.Insert(&newUser)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

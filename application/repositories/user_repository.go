@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/joaodeluchi/ms-users/domain"
@@ -10,7 +11,7 @@ type UserRepository interface {
 	Insert(user *domain.User) (*domain.User, error)
 	GetAll() []*domain.User
 	FindById(id string) (*domain.User, error)
-	FindByEmail(email string) *domain.User
+	FindByEmail(email string) (*domain.User, error)
 	UpdateRoles(userId string, roles []domain.Role) (*domain.User, error)
 	DeleteUser(id string) ([]*domain.User, error)
 }
@@ -19,23 +20,20 @@ type UserRepositoryDb struct {
 	dbInMemory []*domain.User
 }
 
-func (ur UserRepositoryDb) Insert(user *domain.User) (*domain.User, error) {
-	for _, existingUser := range ur.dbInMemory {
-		if existingUser.Email == user.Email {
-			return nil, fmt.Errorf("user already exists")
-		}
+func (ur *UserRepositoryDb) Insert(user *domain.User) (*domain.User, error) {
+	if user == nil {
+		return nil, errors.New("user cannot be nil")
 	}
 
 	ur.dbInMemory = append(ur.dbInMemory, user)
 
 	return user, nil
 }
-
-func (ur UserRepositoryDb) GetAll() []*domain.User {
+func (ur *UserRepositoryDb) GetAll() []*domain.User {
 	return ur.dbInMemory
 }
 
-func (ur UserRepositoryDb) FindById(id string) (*domain.User, error) {
+func (ur *UserRepositoryDb) FindById(id string) (*domain.User, error) {
 	for _, user := range ur.dbInMemory {
 		if user.ID == id {
 			return user, nil
@@ -44,17 +42,17 @@ func (ur UserRepositoryDb) FindById(id string) (*domain.User, error) {
 	return nil, fmt.Errorf("user with ID %s not found", id)
 }
 
-func (ur UserRepositoryDb) FindByEmail(email string) *domain.User {
+func (ur *UserRepositoryDb) FindByEmail(email string) (*domain.User, error) {
 	for _, user := range ur.dbInMemory {
 		if user.Email == email {
-			return user
+			return user, nil
 		}
 	}
 
-	return nil
+	return nil, fmt.Errorf("user with email %s already exist", email)
 }
 
-func (ur UserRepositoryDb) UpdateRoles(userId string, roles []domain.Role) (*domain.User, error) {
+func (ur *UserRepositoryDb) UpdateRoles(userId string, roles []domain.Role) (*domain.User, error) {
 	foundIndex := -1
 	for i, existingUser := range ur.dbInMemory {
 		if existingUser.ID == userId {
@@ -72,7 +70,7 @@ func (ur UserRepositoryDb) UpdateRoles(userId string, roles []domain.Role) (*dom
 	return ur.dbInMemory[foundIndex], nil
 }
 
-func (ur UserRepositoryDb) DeleteUser(id string) ([]*domain.User, error) {
+func (ur *UserRepositoryDb) DeleteUser(id string) ([]*domain.User, error) {
 	targetIndex := -1
 	for i, user := range ur.dbInMemory {
 		if user.ID == id {
@@ -92,7 +90,7 @@ func (ur UserRepositoryDb) DeleteUser(id string) ([]*domain.User, error) {
 
 func NewUserRepository() UserRepository {
 	db := []*domain.User{}
-	return UserRepositoryDb{
+	return &UserRepositoryDb{
 		dbInMemory: db,
 	}
 }

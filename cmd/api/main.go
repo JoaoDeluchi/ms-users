@@ -22,7 +22,8 @@ func registerUserRoutes(router *gin.Engine) {
 	userServices := services.NewUserService(userRepo)
 	userHandlers := handlers.NewUserHandler(userServices)
 	userRouter.POST("", userHandlers.CreateUserHandler)
+	userRouter.GET("/", userHandlers.GetUserHandler)
 	userRouter.GET("/:id", userHandlers.GetUserHandler)
 	userRouter.PUT("/:id", userHandlers.UpdateRoles)
-	userRouter.DELETE("/:id", userHandlers.GetUserHandler)
+	userRouter.DELETE("/:id", userHandlers.DeleteUser)
 }
