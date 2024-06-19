@@ -1,20 +1,23 @@
 # Prerequisites
 
-## Docker installed (https://www.docker.com/products/docker-desktop/)
+Docker installed (https://www.docker.com/products/docker-desktop/)
 
 # Building the Docker Image
 
-## Open a terminal and navigate to your project directory.
+Open a terminal and navigate to your project directory.
 
-## Build the Docker image using the following command:
+# Build the Docker image using the following command:
 
-### Bash
-#### docker build -t zpe-user-management-api .
+``` Bash
+docker build -t zpe-user-management-api .
+```
 
 # Running the API in a Docker Container
-## Start the API in a detached mode using the following command:
 
-### Bash
-#### docker run -d -p 8080:8080 zpe-user-management-api
-###### -d runs the container in detached mode, allowing the terminal to prompt for further commands.
-###### -p 8080:8080 maps port 8080 on the host machine to port 8080 inside the container. This allows you to access the API running in the container from your browser at http://localhost:8080. You can adjust the port numbers if needed.
+Start the API in a detached mode using the following command:
+
+```  Bash
+docker run -d -p 8080:8080 zpe-user-management-api
+```
+-d runs the container in detached mode, allowing the terminal to prompt for further commands.
+-p 8080:8080 maps port 8080 on the host machine to port 8080 inside the container. This allows you to access the API running in the container from your browser at http://localhost:8080. You can adjust the port numbers if needed.
