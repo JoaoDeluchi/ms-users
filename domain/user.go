@@ -6,10 +6,10 @@ import (
 )
 
 type User struct {
-	ID    string `valid:"uuid"`
-	Name  string `valid:"notnull"`
-	Email string `valid:"email"`
-	Roles []Role `valid:"notnull"`
+	ID    string `valid:"uuid" json:"id"`
+	Name  string `valid:"notnull" json:"name"`
+	Email string `valid:"email" json:"email"`
+	Roles []Role `valid:"notnull" json:"roles"`
 }
 
 type Role string
@@ -41,6 +41,7 @@ func (us *User) SetRoles(roles []Role) []Role {
 	for _, role := range roles {
 		if role == Admin {
 			hasAdmin = true
+			// break to avoid unnecessary iteration
 			break
 		}
 		if role == Modifier {
@@ -54,12 +55,12 @@ func (us *User) SetRoles(roles []Role) []Role {
 	case hasModifier:
 		return []Role{Modifier, Watcher}
 	default:
+		// this way if client dont provide a valid role, the user will be created or updated to a Watcher Role
 		return []Role{Watcher}
 	}
 }
 
 func NewUser(name, email string, roles []Role) (User, error) {
-
 	user := User{
 		ID:    uuid.NewV4().String(),
 		Name:  name,
