@@ -35,6 +35,8 @@ func TestNewUser(t *testing.T) {
 				Email: "test_email@abc.com",
 				Roles: []Role{
 					"Admin",
+					"Modifier",
+					"Watcher",
 				},
 			},
 			wantError: false,
@@ -49,18 +51,18 @@ func TestNewUser(t *testing.T) {
 				},
 			},
 			want:                 nil,
-			errorMessageExpected: "Email: test_email does not validate as email",
+			errorMessageExpected: "email: test_email does not validate as email",
 			wantError:            true,
 		},
 	}
 	for _, tt := range tests {
-		got, err := NewUser(tt.name, tt.email, tt.roles)
+		got, err := NewUser(tt.args.name, tt.args.email, tt.args.roles)
 		if tt.wantError {
 			require.EqualError(t, err, tt.errorMessageExpected)
 			return
 		}
-		require.Equal(t, got.Email, tt.args.email)
-		require.Equal(t, got.Name, tt.args.name)
-		require.Equal(t, got.Roles, tt.args.roles)
+		require.Equal(t, got.Email, tt.want.Email)
+		require.Equal(t, got.Name, tt.want.Name)
+		require.Equal(t, got.Roles, tt.want.Roles)
 	}
 }

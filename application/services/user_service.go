@@ -30,20 +30,19 @@ func (us UserService) alreadyHaveTheUser(email string) (bool, error) {
 }
 
 func (us UserService) CreateUser(user domain.User) error {
+	// Check if User Already exist
 	haveUser, err := us.alreadyHaveTheUser(user.Email)
-	fmt.Println(haveUser)
-	fmt.Println(err)
-
 	if haveUser || err != nil {
 		return err
 	}
-
+	// Create and validate new User
 	newUser, err := domain.NewUser(user.Name, user.Email, user.Roles)
 
 	if err != nil {
 		return err
 	}
 
+	// call the repository inserting the user and the inMemory DataBase
 	_, err = us.UserRepository.Insert(&newUser)
 
 	if err != nil {
@@ -55,6 +54,7 @@ func (us UserService) CreateUser(user domain.User) error {
 
 func (us UserService) GetUser(userID string) ([]*domain.User, error) {
 	if userID != "" {
+		// if id is provided, call the repository to get one user by id
 		user, err := us.UserRepository.FindById(userID)
 
 		if err != nil {
@@ -63,7 +63,7 @@ func (us UserService) GetUser(userID string) ([]*domain.User, error) {
 
 		return []*domain.User{user}, nil
 	}
-
+	// if not id is provided, get all users
 	user := us.UserRepository.GetAll()
 
 	return user, nil

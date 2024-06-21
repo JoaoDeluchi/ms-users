@@ -16,6 +16,7 @@ type UserRepository interface {
 	DeleteUser(id string) ([]*domain.User, error)
 }
 
+// UserRepositoryDb is an in-memory implementation of UserRepository
 type UserRepositoryDb struct {
 	dbInMemory []*domain.User
 }
@@ -65,7 +66,7 @@ func (ur *UserRepositoryDb) UpdateRoles(userId string, roles []domain.Role) (*do
 		return nil, fmt.Errorf("user with ID %s not found", userId)
 	}
 
-	ur.dbInMemory[foundIndex].SetRoles(roles)
+	ur.dbInMemory[foundIndex].Roles = ur.dbInMemory[foundIndex].SetRoles(roles)
 
 	return ur.dbInMemory[foundIndex], nil
 }

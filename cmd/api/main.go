@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joaodeluchi/ms-users/application/handlers"
 	"github.com/joaodeluchi/ms-users/application/repositories"
@@ -11,8 +13,12 @@ func main() {
 	router := gin.Default()
 
 	registerUserRoutes(router)
-
+	router.GET("/", redirect)
 	router.Run(":8080")
+}
+
+func redirect(c *gin.Context) {
+	c.Redirect(http.StatusMovedPermanently, "/users")
 }
 
 func registerUserRoutes(router *gin.Engine) {

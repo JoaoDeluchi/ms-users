@@ -24,6 +24,7 @@ func init() {
 	govalidator.SetFieldsRequiredByDefault(true)
 }
 
+// Validate validates the User struct based on field tags
 func (u *User) Validate() error {
 	_, err := govalidator.ValidateStruct(u)
 
@@ -34,6 +35,7 @@ func (u *User) Validate() error {
 	return nil
 }
 
+// SetRoles sets the user's roles with logic to ensure a valid role combination
 func (us *User) SetRoles(roles []Role) []Role {
 	hasAdmin := false
 	hasModifier := false
@@ -41,7 +43,7 @@ func (us *User) SetRoles(roles []Role) []Role {
 	for _, role := range roles {
 		if role == Admin {
 			hasAdmin = true
-			// break to avoid unnecessary iteration
+			// break to avoid unnecessary check
 			break
 		}
 		if role == Modifier {
@@ -55,7 +57,7 @@ func (us *User) SetRoles(roles []Role) []Role {
 	case hasModifier:
 		return []Role{Modifier, Watcher}
 	default:
-		// this way if client dont provide a valid role, the user will be created or updated to a Watcher Role
+		// Default role is Watcher if no valid roles provided
 		return []Role{Watcher}
 	}
 }
