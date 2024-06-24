@@ -26,7 +26,6 @@ func (us UserService) alreadyHaveTheUser(email string) (bool, error) {
 	}
 
 	return false, nil
-
 }
 
 func (us UserService) CreateUser(user domain.User) error {

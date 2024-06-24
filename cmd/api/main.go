@@ -7,6 +7,7 @@ import (
 	"github.com/joaodeluchi/ms-users/application/handlers"
 	"github.com/joaodeluchi/ms-users/application/repositories"
 	"github.com/joaodeluchi/ms-users/application/services"
+	"github.com/joaodeluchi/ms-users/domain"
 )
 
 func main() {
@@ -23,8 +24,9 @@ func redirect(c *gin.Context) {
 
 func registerUserRoutes(router *gin.Engine) {
 	userRouter := router.Group("/users")
+	db := []*domain.User{}
 
-	userRepo := repositories.NewUserRepository()
+	userRepo := repositories.NewUserRepository(db)
 	userServices := services.NewUserService(userRepo)
 	userHandlers := handlers.NewUserHandler(userServices)
 	userRouter.POST("", userHandlers.CreateUserHandler)

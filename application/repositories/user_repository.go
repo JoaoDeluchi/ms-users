@@ -50,7 +50,7 @@ func (ur *UserRepositoryDb) FindByEmail(email string) (*domain.User, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("user with email %s already exist", email)
+	return nil, fmt.Errorf("user with email %s not found", email)
 }
 
 func (ur *UserRepositoryDb) UpdateRoles(userId string, roles []domain.Role) (*domain.User, error) {
@@ -89,8 +89,7 @@ func (ur *UserRepositoryDb) DeleteUser(id string) ([]*domain.User, error) {
 	return ur.dbInMemory, nil
 }
 
-func NewUserRepository() UserRepository {
-	db := []*domain.User{}
+func NewUserRepository(db []*domain.User) UserRepository {
 	return &UserRepositoryDb{
 		dbInMemory: db,
 	}
