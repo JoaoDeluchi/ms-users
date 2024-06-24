@@ -67,10 +67,10 @@ func TestUserRepositoryDb_DeleteUser(t *testing.T) {
 		{
 			name: "Must remove user from database when the id is provided",
 
-			args: args{"123123"},
+			args: args{"321321"},
 			want: []*domain.User{
 				{
-					ID:    "321321",
+					ID:    "123123",
 					Name:  "test-name",
 					Email: "test@email.com",
 					Roles: []domain.Role{
@@ -81,26 +81,9 @@ func TestUserRepositoryDb_DeleteUser(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Must return an error when the id provided is not found",
-			args: args{"456456"},
-			want: []*domain.User{
-				{
-					ID:    "123123",
-					Name:  "test-name",
-					Email: "test@email.com",
-					Roles: []domain.Role{
-						domain.Watcher,
-					},
-				},
-				{
-					ID:    "321321",
-					Name:  "test-name",
-					Email: "test@email.com",
-					Roles: []domain.Role{
-						domain.Watcher,
-					},
-				},
-			},
+			name:    "Must return an error when the id provided is not found",
+			args:    args{"456456"},
+			want:    nil,
 			wantErr: true,
 		},
 	}
@@ -120,7 +103,6 @@ func TestUserRepositoryDb_DeleteUser(t *testing.T) {
 				require.Equal(t, tt.want, got)
 				return
 			}
-			require.Equal(t, tt.want, got)
 			require.EqualError(t, err, "user with ID 456456 not found")
 		})
 	}

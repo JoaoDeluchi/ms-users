@@ -33,7 +33,7 @@ func TestAlreadyHaveTheUser(t *testing.T) {
 			fields:      UserRepositoryMock{},
 			want:        true,
 			wantError:   true,
-			wantedError: "user with email test@test.com already exist",
+			wantedError: "user with email test1@test.com already exist",
 		},
 		{
 			name: "When repository dont return an user must return false",
@@ -52,7 +52,7 @@ func TestAlreadyHaveTheUser(t *testing.T) {
 		service := NewUserService(tt.fields)
 
 		got, err := service.alreadyHaveTheUser(tt.args.email)
-		fmt.Println(got)
+
 		if tt.wantError {
 			require.EqualError(t, err, tt.wantedError)
 			return
@@ -60,41 +60,6 @@ func TestAlreadyHaveTheUser(t *testing.T) {
 		require.Equal(t, got, tt.want)
 	}
 }
-
-// func TestCreateUser(t *testing.T) {
-// 	type args struct {
-// 		user domain.User
-// 	}
-
-// 	type testCase struct {
-// 		testCase string
-// 		fields   repositories.UserRepository
-// 		args     args
-// 		want     error
-// 	}
-
-// 	tests := []testCase{
-// 		{
-// 			testCase: "When dont have any error must return nil",
-// 			args: args{
-// 				domain.User{
-// 					Email: "testing-@email.com",
-// 				},
-// 			},
-// 			fields: UserRepositoryMock{
-// 				wantErr: false,
-// 			},
-// 			want: nil,
-// 		},
-// 	}
-
-// 	for _, tt := range tests {
-// 		service := NewUserService(tt.fields)
-
-// 		got := service.CreateUser(tt.args.user)
-// 		require.Equal(t, tt.want, got.Error())
-// 	}
-// }
 
 type UserRepositoryMock struct {
 	wantErr bool
